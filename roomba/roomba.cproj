@@ -132,6 +132,12 @@
     <Compile Include="cswitch.S">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="lcd\lcd_drv.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="lcd\lcd_drv.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="LED_Test.c">
       <SubType>compile</SubType>
     </Compile>
@@ -139,6 +145,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="main.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="mydefs.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="os.c">
@@ -192,6 +204,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="adc" />
+    <Folder Include="lcd" />
     <Folder Include="radio" />
     <Folder Include="roomba" />
     <Folder Include="uart" />

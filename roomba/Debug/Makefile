@@ -34,6 +34,7 @@ LINKER_SCRIPT_DEP:=
 # Every subdirectory with source files must be described here
 SUBDIRS :=  \
 ../adc \
+../lcd \
 ../radio \
 ../roomba \
 ../uart
@@ -43,6 +44,7 @@ SUBDIRS :=  \
 C_SRCS +=  \
 ../adc/adc.c \
 ../control.c \
+../lcd/lcd_drv.c \
 ../LED_Test.c \
 ../main.c \
 ../os.c \
@@ -64,6 +66,7 @@ OBJS +=  \
 adc/adc.o \
 control.o \
 cswitch.o \
+lcd/lcd_drv.o \
 LED_Test.o \
 main.o \
 os.o \
@@ -77,6 +80,7 @@ OBJS_AS_ARGS +=  \
 adc/adc.o \
 control.o \
 cswitch.o \
+lcd/lcd_drv.o \
 LED_Test.o \
 main.o \
 os.o \
@@ -90,6 +94,7 @@ C_DEPS +=  \
 adc/adc.d \
 control.d \
 cswitch.d \
+lcd/lcd_drv.d \
 LED_Test.d \
 main.d \
 os.d \
@@ -103,6 +108,7 @@ C_DEPS_AS_ARGS +=  \
 adc/adc.d \
 control.d \
 cswitch.d \
+lcd/lcd_drv.d \
 LED_Test.d \
 main.d \
 os.d \
@@ -147,6 +153,8 @@ LINKER_SCRIPT_DEP+=
 
 
 
+
+
 adc/%.o: ../adc/%.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 4.9.2
@@ -155,6 +163,13 @@ adc/%.o: ../adc/%.c
 	
 
 ./%.o: .././%.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 4.9.2
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.98\include"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=atmega2560 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.98\gcc\dev\atmega2560" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+lcd/%.o: ../lcd/%.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 4.9.2
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.98\include"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=atmega2560 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.98\gcc\dev\atmega2560" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
