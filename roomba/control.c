@@ -19,7 +19,7 @@ volatile uint8_t rxflag = 0;
 
 static radiopacket_t packet;
 
-int main()
+int main_b()
 {
 	uint8_t i;
 	clock8MHz();
@@ -79,10 +79,10 @@ int main()
 			}
 
 			// Output the command to the Roomba, followed by its arguments.
-			uart_putchar(packet.payload.command.command);
+			uart_putc(packet.payload.command.command);
 			for (i = 0; i < packet.payload.command.num_arg_bytes; i++)
 			{
-				uart_putchar(packet.payload.command.arguments[i]);
+				uart_putc(packet.payload.command.arguments[i]);
 			}
 
 			// Set the radio's destination address to be the remote station's address
