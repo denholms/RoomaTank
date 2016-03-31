@@ -14,7 +14,9 @@ int main(void)
 {
     Roomba_Init();
 	Roomba_Drive(100, 0x8000);
-	for(;;){}
+	for(;;){
+		uart_putchar(140,1);
+	}
 	return 0;
 }
 

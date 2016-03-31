@@ -19,6 +19,8 @@
 #define DD_DDR DDRC
 #define DD_PORT PORTC
 #define DD_PIN PC5
+#define ROOMBA_UART 0
+#define BT_UART 1
 
 STATUS_LED_STATE status = LED_OFF;
 LED_STATE spot = LED_OFF;
@@ -55,7 +57,7 @@ void Roomba_Init()
 	uart_init(UART_19200);
 
 	// start the Roomba's SCI
-	uart_putc(START);
+	uart_putchar(START, ROOMBA_UART);
 	_delay_ms(20);
 
 	// See the appropriate AVR hardware specification, at the end of the USART section, for a table of baud rate
@@ -64,15 +66,15 @@ void Roomba_Init()
 	// that.  38400 at 0.2% is sufficient for our purposes.  An 18.432 MHz crystal will generate all the Roomba's
 	// baud rates with 0.0% error!.  Anyway, the point is we want to use a 38400 bps baud rate to avoid framing
 	// errors.  Also, we have to wait for 100 ms after changing the baud rate.
-	uart_putc(BAUD);
-	uart_putc(ROOMBA_38400BPS);
+	uart_putchar(BAUD, ROOMBA_UART);
+	uart_putchar(ROOMBA_38400BPS, ROOMBA_UART);
 	_delay_ms(100);
 
 	// change the AVR's UART clock to the new baud rate.
 	uart_init(UART_38400);
 
 	// put the Roomba into safe mode.
-	uart_putc(CONTROL);
+	uart_putchar(CONTROL, ROOMBA_UART);
 	_delay_ms(20);
 
 	// Set the Roomba's LEDs to the defaults defined above (to verify defaults).
@@ -100,50 +102,50 @@ uint8_t wait_for_bytes(uint8_t num_bytes, uint8_t timeout)
 void Roomba_UpdateSensorPacket(ROOMBA_SENSOR_GROUP group, roomba_sensor_data_t* sensor_packet)
 {
 	// No, I don't feel bad about manual loop unrolling.
-	uart_putc(SENSORS);
-	uart_putc(group);
+	uart_putchar(SENSORS, ROOMBA_UART);
+	uart_putchar(group, ROOMBA_UART);
 	switch(group)
 	{
 	case EXTERNAL:
 		// environment sensors
-		while (UART_getTail(0, 0) != 10);
-		sensor_packet->bumps_wheeldrops = uart_get_byte(0);
-		sensor_packet->wall = uart_get_byte(1);
-		sensor_packet->cliff_left = uart_get_byte(2);
-		sensor_packet->cliff_front_left = uart_get_byte(3);
-		sensor_packet->cliff_front_right = uart_get_byte(4);
-		sensor_packet->cliff_right = uart_get_byte(5);
-		sensor_packet->virtual_wall = uart_get_byte(6);
-		sensor_packet->motor_overcurrents = uart_get_byte(7);
-		sensor_packet->dirt_left = uart_get_byte(8);
-		sensor_packet->dirt_right = uart_get_byte(9);
+		while (uart_bytes_received(ROOMBA_UART) != 10);
+		sensor_packet->bumps_wheeldrops = uart_get_byte(0, ROOMBA_UART);
+		sensor_packet->wall = uart_get_byte(1, ROOMBA_UART);
+		sensor_packet->cliff_left = uart_get_byte(2, ROOMBA_UART);
+		sensor_packet->cliff_front_left = uart_get_byte(3, ROOMBA_UART);
+		sensor_packet->cliff_front_right = uart_get_byte(4, ROOMBA_UART);
+		sensor_packet->cliff_right = uart_get_byte(5, ROOMBA_UART);
+		sensor_packet->virtual_wall = uart_get_byte(6, ROOMBA_UART);
+		sensor_packet->motor_overcurrents = uart_get_byte(7, ROOMBA_UART);
+		sensor_packet->dirt_left = uart_get_byte(8, ROOMBA_UART);
+		sensor_packet->dirt_right = uart_get_byte(9, ROOMBA_UART);
 		break;
 	case CHASSIS:
 		// chassis sensors
-		while (UART_getTail(0, 0) != 6);
-		sensor_packet->remote_opcode = uart_get_byte(0);
-		sensor_packet->buttons = uart_get_byte(1);
-		sensor_packet->distance.bytes.high_byte = uart_get_byte(2);
-		sensor_packet->distance.bytes.low_byte = uart_get_byte(3);
-		sensor_packet->angle.bytes.high_byte = uart_get_byte(4);
-		sensor_packet->angle.bytes.low_byte = uart_get_byte(5);
+		while (uart_bytes_received(ROOMBA_UART) != 6);
+		sensor_packet->remote_opcode = uart_get_byte(0, ROOMBA_UART);
+		sensor_packet->buttons = uart_get_byte(1, ROOMBA_UART);
+		sensor_packet->distance.bytes.high_byte = uart_get_byte(2, ROOMBA_UART);
+		sensor_packet->distance.bytes.low_byte = uart_get_byte(3, ROOMBA_UART);
+		sensor_packet->angle.bytes.high_byte = uart_get_byte(4, ROOMBA_UART);
+		sensor_packet->angle.bytes.low_byte = uart_get_byte(5, ROOMBA_UART);
 		break;
 	case INTERNAL:
 		// internal sensors
-		while (UART_getTail(0, 0) != 10);
-		sensor_packet->charging_state = uart_get_byte(0);
-		sensor_packet->voltage.bytes.high_byte = uart_get_byte(1);
-		sensor_packet->voltage.bytes.low_byte = uart_get_byte(2);
-		sensor_packet->current.bytes.high_byte = uart_get_byte(3);
-		sensor_packet->current.bytes.low_byte = uart_get_byte(4);
-		sensor_packet->temperature = uart_get_byte(5);
-		sensor_packet->charge.bytes.high_byte = uart_get_byte(6);
-		sensor_packet->charge.bytes.low_byte = uart_get_byte(7);
-		sensor_packet->capacity.bytes.high_byte = uart_get_byte(8);
-		sensor_packet->capacity.bytes.low_byte = uart_get_byte(9);
+		while (uart_bytes_received(ROOMBA_UART) != 10);
+		sensor_packet->charging_state = uart_get_byte(0, ROOMBA_UART);
+		sensor_packet->voltage.bytes.high_byte = uart_get_byte(1, ROOMBA_UART);
+		sensor_packet->voltage.bytes.low_byte = uart_get_byte(2, ROOMBA_UART);
+		sensor_packet->current.bytes.high_byte = uart_get_byte(3, ROOMBA_UART);
+		sensor_packet->current.bytes.low_byte = uart_get_byte(4, ROOMBA_UART);
+		sensor_packet->temperature = uart_get_byte(5, ROOMBA_UART);
+		sensor_packet->charge.bytes.high_byte = uart_get_byte(6, ROOMBA_UART);
+		sensor_packet->charge.bytes.low_byte = uart_get_byte(7, ROOMBA_UART);
+		sensor_packet->capacity.bytes.high_byte = uart_get_byte(8, ROOMBA_UART);
+		sensor_packet->capacity.bytes.low_byte = uart_get_byte(9, ROOMBA_UART);
 		break;
 	}
-	uart0_flush();
+	uart_reset_receive(ROOMBA_UART);
 }
 
 
@@ -152,18 +154,18 @@ void Roomba_ChangeState(ROOMBA_STATE newState)
 	if (newState == SAFE_MODE)
 	{
 		if (state == PASSIVE_MODE)
-			uart_putc(CONTROL);
+			uart_putchar(CONTROL, ROOMBA_UART);
 		else if (state == FULL_MODE)
-			uart_putc(SAFE);
+			uart_putchar(SAFE, ROOMBA_UART);
 	}
 	else if (newState == FULL_MODE)
 	{
 		Roomba_ChangeState(SAFE_MODE);
-		uart_putc(FULL);
+		uart_putchar(FULL, ROOMBA_UART);
 	}
 	else if (newState == PASSIVE_MODE)
 	{
-		uart_putc(POWER);
+		uart_putchar(POWER, ROOMBA_UART);
 	}
 	else
 	{
@@ -177,11 +179,11 @@ void Roomba_ChangeState(ROOMBA_STATE newState)
 
 void Roomba_Drive( int16_t velocity, int16_t radius )
 {
-	uart_putc(DRIVE);
-	uart_putc(HIGH_BYTE(velocity));
-	uart_putc(LOW_BYTE(velocity));
-	uart_putc(HIGH_BYTE(radius));
-	uart_putc(LOW_BYTE(radius));
+	uart_putchar(DRIVE, ROOMBA_UART);
+	uart_putchar(HIGH_BYTE(velocity), ROOMBA_UART);
+	uart_putchar(LOW_BYTE(velocity), ROOMBA_UART);
+	uart_putchar(HIGH_BYTE(radius), ROOMBA_UART);
+	uart_putchar(LOW_BYTE(radius), ROOMBA_UART);
 }
 
 /**
@@ -192,10 +194,10 @@ void update_leds()
 	// The status, spot, clean, max, and dirt detect LED states are combined in a single byte.
 	uint8_t leds = status << 4 | spot << 3 | clean << 2 | max << 1 | dd;
 
-	uart_putc(LEDS);
-	uart_putc(leds);
-	uart_putc(power_colour);
-	uart_putc(power_intensity);
+	uart_putchar(LEDS, ROOMBA_UART);
+	uart_putchar(leds, ROOMBA_UART);
+	uart_putchar(power_colour, ROOMBA_UART);
+	uart_putchar(power_intensity, ROOMBA_UART);
 }
 
 void Roomba_ConfigPowerLED(uint8_t colour, uint8_t intensity)
@@ -239,21 +241,21 @@ void Roomba_LoadSong(uint8_t songNum, uint8_t* notes, uint8_t* notelengths, uint
 {
 	uint8_t i = 0;
 
-	uart_putc(SONG);
-	uart_putc(songNum);
-	uart_putc(numNotes);
+	uart_putchar(SONG, ROOMBA_UART);
+	uart_putchar(songNum, ROOMBA_UART);
+	uart_putchar(numNotes, ROOMBA_UART);
 
 	for (i=0; i<numNotes; i++)
 	{
-		uart_putc(notes[i]);
-		uart_putc(notelengths[i]);
+		uart_putchar(notes[i], ROOMBA_UART);
+		uart_putchar(notelengths[i], ROOMBA_UART);
 	}
 }
 
 void Roomba_PlaySong(int songNum)
 {
-	uart_putc(PLAY);
-	uart_putc(songNum);
+	uart_putchar(PLAY, ROOMBA_UART);
+	uart_putchar(songNum, ROOMBA_UART);
 }
 
 uint8_t Roomba_BumperActivated(roomba_sensor_data_t* sensor_data)
