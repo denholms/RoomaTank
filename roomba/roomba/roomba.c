@@ -52,10 +52,10 @@ void Roomba_Init()
 		_delay_ms(50);
 	}
 
-	uart_init(UART_19200);
+	uart0_init(UART_19200);
 
 	// start the Roomba's SCI
-	uart_putc(START);
+	uart0_putc(START);
 	_delay_ms(20);
 
 	// See the appropriate AVR hardware specification, at the end of the USART section, for a table of baud rate
@@ -64,19 +64,19 @@ void Roomba_Init()
 	// that.  38400 at 0.2% is sufficient for our purposes.  An 18.432 MHz crystal will generate all the Roomba's
 	// baud rates with 0.0% error!.  Anyway, the point is we want to use a 38400 bps baud rate to avoid framing
 	// errors.  Also, we have to wait for 100 ms after changing the baud rate.
-	uart_putc(BAUD);
-	uart_putc(ROOMBA_38400BPS);
+	uart0_putc(BAUD);
+	uart0_putc(ROOMBA_38400BPS);
 	_delay_ms(100);
 
 	// change the AVR's UART clock to the new baud rate.
-	uart_init(UART_38400);
+	uart0_init(UART_38400);
 
 	// put the Roomba into safe mode.
-	uart_putc(CONTROL);
+	uart0_putc(CONTROL);
 	_delay_ms(20);
 
 	// Set the Roomba's LEDs to the defaults defined above (to verify defaults).
-	//update_leds();
+	update_leds();
 }
 
 /**
@@ -239,21 +239,22 @@ void Roomba_LoadSong(uint8_t songNum, uint8_t* notes, uint8_t* notelengths, uint
 {
 	uint8_t i = 0;
 
-	uart_putc(SONG);
-	uart_putc(songNum);
-	uart_putc(numNotes);
+	uart0_putc(SONG);
+	uart0_putc(songNum);
+	uart0_putc(numNotes);
 
 	for (i=0; i<numNotes; i++)
 	{
-		uart_putc(notes[i]);
-		uart_putc(notelengths[i]);
+		uart0_putc(notes[i]);
+		uart0_putc(notelengths[i]);
 	}
 }
 
 void Roomba_PlaySong(int songNum)
 {
-	uart_putc(PLAY);
-	uart_putc(songNum);
+	uart0_putc(PLAY);
+	uart0_putc(songNum);
+	
 }
 
 uint8_t Roomba_BumperActivated(roomba_sensor_data_t* sensor_data)
