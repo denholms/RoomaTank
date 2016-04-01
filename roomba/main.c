@@ -49,7 +49,7 @@ void Init_Task() {
 
 		Task_Sleep(100);
 	}*/
-	Roomba_Init();
+	
 	
 }
 
@@ -97,12 +97,15 @@ void a_main() {
 	adc_test = adc_read(7);
 	sprintf(line, "ADC: %4d", adc_test);
 	lcd_puts(line);
+	Roomba_Init();
+	
+	//Roomba_Drive(100, 0x8000);
 	
 	
-	
+	Roomba_PlaySong(50);
 
 	
-	InitPID = Task_Create(Init_Task,8,1);
-	DrivePID = Task_Create(Init_Drive, 8, 1);
+	//InitPID = Task_Create(Init_Task,8,1);
+	//DrivePID = Task_Create(Init_Drive, 8, 1);
 	Task_Terminate();
 }

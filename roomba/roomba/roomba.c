@@ -49,9 +49,9 @@ void Roomba_Init()
 	for (i = 0; i < 3; i++)
 	{
 		DD_PORT &= ~_BV(DD_PIN);
-		_delay_ms(50);
+		_delay_ms(200);
 		DD_PORT |= _BV(DD_PIN);
-		_delay_ms(50);
+		_delay_ms(200);
 	}
 
 	uart_init(UART_19200);
