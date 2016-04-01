@@ -147,7 +147,16 @@ void uart_reset_receive(int uart)
 		uart_buffer_index = 0;
 	}
 }
-
+void uart_send_string(char *string, int uart){
+	
+	while (*string != '\0')
+	{
+		uart_putchar(*string, uart);
+		string++;
+	}
+	
+	
+}
 /**
  * UART receive byte ISR
  */

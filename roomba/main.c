@@ -5,10 +5,12 @@
 #include <util/delay.h>
 #include "LED_Test.h"
 #include "os.h"
+
 #include "roomba/roomba.h"
 #include "uart/uart.h"
 #include "adc/adc.h"
 #include "lcd/lcd_drv.h"
+#include <string.h>
 
 unsigned int portL2_Mutex;
 unsigned int portL6_Mutex;
@@ -21,6 +23,7 @@ unsigned int e2;
 //unsigned int IdlePID;
 unsigned int InitPID;
 unsigned int DrivePID;
+unsigned int IdlePID ;
 
 // An idle task that runs when there is nothing else to do
 // Could be changed later to put CPU into low power state
@@ -77,15 +80,29 @@ void Init_Drive() {
 }
 
 
+void Poll_Joystick(){
+	
+	char buffer[6];
+	uint16_t joystick_y;
+	uint16_t joystick_x;
+	joystick_x = adc_read(7);
+	joystick_y = adc_read(6);
+	
+	
+	sprintf(buffer, "s%hu%hue", joystick_x, joystick_y);
+	
+	uart_send_string(buffer, BT_UART);
+}
+
 // Application level main function
 // Creates the required tasks and then terminates
 void a_main() {
 	char line[16];
-	portL2_Mutex = Mutex_Init();
-	portL6_Mutex = Mutex_Init();
-	uint16_t adc_test;
-	e1 = Event_Init();
-	e2 = Event_Init();
+	//portL2_Mutex = Mutex_Init();
+	//portL6_Mutex = Mutex_Init();
+	//
+	//e1 = Event_Init();
+	//e2 = Event_Init();
 	adc_init();
 	
 	//PongPID = Task_Create(Pong, 8, 1);
@@ -94,18 +111,25 @@ void a_main() {
 	lcd_init(); // initialized the LCD
 	DDRB |= (1<<DDB4); // enable output mode of Digital Pin 10 (PORTB Pin 4) for backlit control
 	PORTB |= (1<<DDB4); // enable back light
-	adc_test = adc_read(7);
-	sprintf(line, "ADC: %4d", adc_test);
+	
+	//sprintf(line, "ADC: %4d", adc_test);
 	lcd_puts(line);
 	Roomba_Init();
 	
 	//Roomba_Drive(100, 0x8000);
 	
 	
-	Roomba_PlaySong(50);
-
+	//Roomba_PlaySong(50);
+	
+	for (;;)
+	{
+		_delay_ms(200);
+		Poll_Joystick();
+		
+	}
 	
 	//InitPID = Task_Create(Init_Task,8,1);
 	//DrivePID = Task_Create(Init_Drive, 8, 1);
+	IdlePID = Task_Create(Idle, 8, 1);
 	Task_Terminate();
 }
