@@ -79,40 +79,31 @@ void Init_Drive() {
 	
 	Roomba_Drive(100, 0x8000);
 }
-void Init_Struct(){
-	uint8_t init = 0;
-	//int16_u init16 = 0;
+
+
+void Poll_Roomba_Data()
+{ 
+	//uint8_t playsong = 0;
+	//Roomba_PlaySong(playsong);
+	_delay_ms(200);
+	lcd_xy(0,0);
+	//Roomba_Drive(100, 0x8000);
 	
-	//data.angle = init16;
-	data.bumps_wheeldrops = init;
-	data.buttons = init;
-	//data.capacity = init;
-	//data.charge = init;
-	data.charging_state = init;
-	data.charging_state = init;
-	data.cliff_front_left = init;
-	data.cliff_front_right = init;
-	data.cliff_left = init;
-	data.cliff_right = init;
-	data.dirt_left = init;
-	data.dirt_right = init;
-	//data.distance = init;
-	data.motor_overcurrents = init;
-	data.remote_opcode = init;
-	data.temperature = init;
-	data.virtual_wall =  init;
-	//data.voltage = init;
-	data.wall = init;
-	
-	
+	lcd_puts("Polling Sensor  ");
+	_delay_ms(20);
+	uart_putchar(149,ROOMBA_UART);
+	uart_putchar(4, ROOMBA_UART);
+	uart_putchar(7,ROOMBA_UART);
+	uart_putchar(8,ROOMBA_UART);
+	uart_putchar(27,ROOMBA_UART);
+	uart_putchar(13,ROOMBA_UART);
+	_delay_ms(200);
 	
 }
 
-void Poll_Roomba_Data()
-{
+void Read_Roomba_Data(){
 	
 	
-	Roomba_UpdateSensorPacket(EXTERNAL, &data);
 	
 }
 
@@ -129,17 +120,23 @@ void Poll_Joystick(){
 	{
 		joystick_x = adc_read(7);
 		joystick_y = adc_read(5);
-		//lcd_xy(0,0);
-		//uart_putchar(send,1);
-		//sprintf(line2, "ADC:%2d", joystick_x);
-		//lcd_xy(0,1);
-		//sprintf(line2, "ADC:%2d", joystick_y);
-		//lcd_puts(line2);
+		lcd_xy(0,0);
+		uart_putchar(send,1);
+		sprintf(line2, "ADC:%2d ", joystick_x);
+		//sprintf(line2, "Fucking Kill me");
+		lcd_puts(line2);
+		lcd_xy(0,1);
 		
-		sprintf(buffer, "s%2d%2de\0", joystick_x, joystick_y);
+		//sprintf(line2,"Jesus Fuck      ");
+		sprintf(line2, "ADC:%2d ", joystick_y);
+		lcd_puts(line2);
+		
+		sprintf(buffer, "s%04d%04de\0", (int)joystick_x, (int)joystick_y);
 		
 		uart_send_string(buffer, 1);
-		_delay_ms(200);
+		//Poll_Roomba_Data();
+		//uart_send_string(buffer, ROOMBA_UART);
+		_delay_ms(20);
 		
 	}
 	
@@ -172,16 +169,20 @@ void a_main() {
 	//lcd_xy(0,1);
 	//sprintf(line, "Laser: %s", jsBtn);
 	//lcd_puts(line);
-	//Roomba_Init();
-	uart_init(UART_38400);
+	Roomba_Init();
+	//uart_init(UART_38400);
 	//Roomba_Drive(100, 0x8000);
 	
+
 	
-	//Roomba_PlaySong(50);
+			//Roomba_PlaySong(1);
+			//_delay_ms(200);
+	
+
 
 	
 	
-	InitPID = Task_Create(Poll_Joystick,0,1);
+    InitPID = Task_Create(Poll_Joystick,0,1);
 	//DrivePID = Task_Create(Init_Drive, 8, 1);
 	//IdlePID = Task_Create(Idle, 8, 1);
 	Task_Terminate();
