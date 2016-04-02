@@ -26,22 +26,22 @@ void uart_init(UART_BPS bitrate)
 {
 	
 
-	
+	/*Baud is hard set to 38400 by both*/
 	
     PRR0 &= ~(1 << PRUSART0);
 	UCSR0A = _BV(U2X1);									// Double speed (async) control (On when U2Xn = 1, set to 0 when doing synchronous transfer)
 	UCSR0B = _BV(RXEN0) | _BV(TXEN0) | _BV(RXCIE0);		// Activate receiver, transmitter, and receive complete flag (0 when buffer empty)
 	UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);					// USART Control and Status Register C (selects async/sync operation), sets frame format
 
-	//UCSR1A = _BV(U2X1);
-	//UCSR1B = _BV(RXEN1) | _BV(TXEN1) | _BV(RXCIE1);
-	//UCSR1C = _BV(UCSZ11) | _BV(UCSZ10);
+	UCSR1A = _BV(U2X1);
+	UCSR1B = _BV(RXEN1) | _BV(TXEN1) | _BV(RXCIE1);
+	UCSR1C = _BV(UCSZ11) | _BV(UCSZ10);
 
 	//UBRR0H = 0;											// Baud Rate register - for any speed >= 9600 bps, the UBBR value fits in the low byte.
 	//UBRR1H = 0;
 	
-	UBRR0 = 103;
-	UBRR1 = 103;
+	UBRR0 = 51;
+	UBRR1 = 51;
 
 	// See the appropriate AVR hardware specification for a table of UBBR values at different
 	// clock speeds.*/

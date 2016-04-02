@@ -11,13 +11,14 @@
 #include "adc/adc.h"
 #include "lcd/lcd_drv.h"
 #include <string.h>
+#include "roomba/sensor_struct.h"
 
 unsigned int portL2_Mutex;
 unsigned int portL6_Mutex;
 
 unsigned int e1;
 unsigned int e2;
-
+roomba_sensor_data_t data;
 //unsigned int PingPID;
 //unsigned int PongPID;
 //unsigned int IdlePID;
@@ -78,7 +79,42 @@ void Init_Drive() {
 	
 	Roomba_Drive(100, 0x8000);
 }
+void Init_Struct(){
+	uint8_t init = 0;
+	//int16_u init16 = 0;
+	
+	//data.angle = init16;
+	data.bumps_wheeldrops = init;
+	data.buttons = init;
+	//data.capacity = init;
+	//data.charge = init;
+	data.charging_state = init;
+	data.charging_state = init;
+	data.cliff_front_left = init;
+	data.cliff_front_right = init;
+	data.cliff_left = init;
+	data.cliff_right = init;
+	data.dirt_left = init;
+	data.dirt_right = init;
+	//data.distance = init;
+	data.motor_overcurrents = init;
+	data.remote_opcode = init;
+	data.temperature = init;
+	data.virtual_wall =  init;
+	//data.voltage = init;
+	data.wall = init;
+	
+	
+	
+}
 
+void Poll_Roomba_Data()
+{
+	
+	
+	Roomba_UpdateSensorPacket(EXTERNAL, &data);
+	
+}
 
 void Poll_Joystick(){
 	
@@ -87,49 +123,56 @@ void Poll_Joystick(){
 	uint16_t joystick_x;
 	joystick_x = adc_read(7);
 	joystick_y = adc_read(6);
+	unsigned char send = 23;
+	
+	for (;;)
+	{
+		uart_putchar(send,0);
+	}
 	
 	
 	sprintf(buffer, "s%hu%hue", joystick_x, joystick_y);
 	
-	uart_send_string(buffer, BT_UART);
+	//uart_send_string(buffer, 0);
 }
 
 // Application level main function
 // Creates the required tasks and then terminates
 void a_main() {
 	char line[16];
-	//portL2_Mutex = Mutex_Init();
-	//portL6_Mutex = Mutex_Init();
-	//
-	//e1 = Event_Init();
-	//e2 = Event_Init();
-	adc_init();
+	portL2_Mutex = Mutex_Init();
+	portL6_Mutex = Mutex_Init();
+	unsigned char jsBtn;
 	
+	
+	e1 = Event_Init();
+	e2 = Event_Init();
+	adc_init();
+	uint16_t adc_test = adc_read(7);
 	//PongPID = Task_Create(Pong, 8, 1);
 	//PingPID = Task_Create(Ping, 8, 1);
 	//IdlePID = Task_Create(Idle, MINPRIORITY, 1);
 	lcd_init(); // initialized the LCD
+	lcd_xy(0,0);
 	DDRB |= (1<<DDB4); // enable output mode of Digital Pin 10 (PORTB Pin 4) for backlit control
 	PORTB |= (1<<DDB4); // enable back light
-	
-	//sprintf(line, "ADC: %4d", adc_test);
+	itoa(adc_test, jsBtn);
+	sprintf(line, "ADC:%2d", adc_test);
 	lcd_puts(line);
-	Roomba_Init();
-	
+	lcd_xy(0,1);
+	sprintf(line, "Laser: %s", jsBtn);
+	lcd_puts(line);
+	//Roomba_Init();
+	uart_init(UART_38400);
 	//Roomba_Drive(100, 0x8000);
 	
 	
 	//Roomba_PlaySong(50);
+
 	
-	for (;;)
-	{
-		_delay_ms(200);
-		Poll_Joystick();
-		
-	}
 	
-	//InitPID = Task_Create(Init_Task,8,1);
+	InitPID = Task_Create(Poll_Joystick,0,1);
 	//DrivePID = Task_Create(Init_Drive, 8, 1);
-	IdlePID = Task_Create(Idle, 8, 1);
+	//IdlePID = Task_Create(Idle, 8, 1);
 	Task_Terminate();
 }

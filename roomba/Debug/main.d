@@ -22,7 +22,8 @@ main.d main.o: .././main.c \
  .././roomba/roomba_sci.h .././roomba/sensor_struct.h .././uart/uart.h \
  .././adc/adc.h .././lcd/lcd_drv.h .././lcd/../main.h \
  .././lcd/../mydefs.h \
- c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\string.h
+ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\string.h \
+ .././roomba/sensor_struct.h
 
 c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\io.h:
 
@@ -83,3 +84,5 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\
 .././lcd/../mydefs.h:
 
 c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\string.h:
+
+.././roomba/sensor_struct.h:

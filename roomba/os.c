@@ -961,7 +961,7 @@ void main() {
 	setup();
 	
 	OS_Init();
-	Task_Create(a_main, 0, 1);
+	Task_Create(a_main, 1, 1);
 	OS_Start();
 }
 
