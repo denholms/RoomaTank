@@ -5,6 +5,12 @@
 #include "roomba_sci.h"
 #include "sensor_struct.h"
 
+#define DD_DDR DDRC
+#define DD_PORT PORTC
+#define DD_PIN PC5
+#define ROOMBA_UART 0
+#define BT_UART 1
+
 typedef enum _rsg
 {
         EXTERNAL=1,             // group 1 (bumper/wheeldrops, cliff sensors, virtual wall, motor overcurrents, dirt sensors)

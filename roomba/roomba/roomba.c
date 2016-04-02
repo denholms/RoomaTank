@@ -66,12 +66,12 @@ void Roomba_Init()
 	// that.  38400 at 0.2% is sufficient for our purposes.  An 18.432 MHz crystal will generate all the Roomba's
 	// baud rates with 0.0% error!.  Anyway, the point is we want to use a 38400 bps baud rate to avoid framing
 	// errors.  Also, we have to wait for 100 ms after changing the baud rate.
-	uart_putchar(BAUD, ROOMBA_UART);
-	uart_putchar(ROOMBA_38400BPS, ROOMBA_UART);
+	//uart_putchar(BAUD, ROOMBA_UART);
+	//uart_putchar(ROOMBA_38400BPS, ROOMBA_UART);
 	_delay_ms(100);
 
 	// change the AVR's UART clock to the new baud rate.
-	uart_init(UART_38400);
+	//uart_init(UART_38400);
 
 	// put the Roomba into safe mode.
 	uart_putchar(CONTROL, ROOMBA_UART);

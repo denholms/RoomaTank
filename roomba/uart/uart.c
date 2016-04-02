@@ -35,71 +35,74 @@ void uart_init(UART_BPS bitrate)
 	UCSR1B = _BV(RXEN1) | _BV(TXEN1) | _BV(RXCIE1);
 	UCSR1C = _BV(UCSZ11) | _BV(UCSZ10);
 
-	UBRR0H = 0;											// Baud Rate register - for any speed >= 9600 bps, the UBBR value fits in the low byte.
+	//UBRR0H = 0;											// Baud Rate register - for any speed >= 9600 bps, the UBBR value fits in the low byte.
 	UBRR1H = 0;
-
-	// See the appropriate AVR hardware specification for a table of UBBR values at different
+	UBRR1L = 207;	//103
+	//UBRR0L = 103;
+	UBRR0 = 103;
+/*
+	// See the appropriate AVR hardw                                             \\\\\\\\\\\\\\\\\\are specification for a table of UBBR values at different
 	// clock speeds.
 	switch (bitrate)
 	{
 #if F_CPU==8000000UL
 	case UART_19200:
 		UBRR0L = 51;
-		UBRR1L = 51;
+		//UBRR1L = 51;
 		break;
 	case UART_38400:
 		UBRR0L = 25;
-		UBRR1L = 25;
+		//UBRR1L = 25;
 		break;
 	case UART_57600:
 		UBRR0L = 16;
-		UBRR1L = 16;
+		//UBRR1L = 16;
 		break;
 	default:
 		UBRR0L = 51;
-		UBRR1L = 51;
+		//UBRR1L = 51;
 #elif F_CPU==16000000UL
 	case UART_19200:
 		UBRR0L = 103;
-		UBRR1L = 103;
+		//UBRR1L = 103;
 		break;
 	case UART_38400:
 		UBRR0L = 51;
-		UBRR1L = 51;
+		//UBRR1L = 51;
 		break;
 	case UART_57600:
 		UBRR0L = 34;
-		UBRR1L = 34;
+		//UBRR1L = 34;
 		break;
 	default:
 		UBRR0L = 103;
-		UBRR1L = 103;
+		//UBRR1L = 103;
 #elif F_CPU==18432000UL
 	case UART_19200:
 		UBRR0L = 119;
-		UBRR1L = 119;
+		//UBRR1L = 119;
 		break;
 	case UART_38400:
 		UBRR0L = 59;
-		UBRR1L = 59;
+		//UBRR1L = 59;
 		break;
 	case UART_57600:
 		UBRR0L = 39;
-		UBRR1L = 39;
+		//UBRR1L = 39;
 		break;
 	default:
 		UBRR0L = 119;
-		UBRR1L = 119;
+		//UBRR1L = 119;
 		break;
 #else
 #warning "F_CPU undefined or not supported in uart.c."
 	default:
 		UBRR0L = 71;
-		UBRR1L = 71;
+		//UBRR1L = 71;
 		break;
 #endif
 	}
-
+*/
     uart_buffer_index = 0;
     uart_buffer_1_index = 0;
 }
