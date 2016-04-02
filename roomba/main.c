@@ -117,23 +117,33 @@ void Poll_Roomba_Data()
 }
 
 void Poll_Joystick(){
-	
-	char buffer[6];
+	char line2[16];
+	char buffer[7];
 	uint16_t joystick_y;
 	uint16_t joystick_x;
-	joystick_x = adc_read(7);
-	joystick_y = adc_read(6);
+	
+	
 	unsigned char send = 23;
 	
 	for (;;)
 	{
-		uart_putchar(send,0);
+		joystick_x = adc_read(7);
+		joystick_y = adc_read(5);
+		//lcd_xy(0,0);
+		//uart_putchar(send,1);
+		//sprintf(line2, "ADC:%2d", joystick_x);
+		//lcd_xy(0,1);
+		//sprintf(line2, "ADC:%2d", joystick_y);
+		//lcd_puts(line2);
+		
+		sprintf(buffer, "s%2d%2de\0", joystick_x, joystick_y);
+		
+		uart_send_string(buffer, 1);
+		_delay_ms(200);
+		
 	}
 	
 	
-	sprintf(buffer, "s%2d%2de", joystick_x, joystick_y);
-	
-	//uart_send_string(buffer, 0);
 }
 
 // Application level main function
@@ -157,11 +167,11 @@ void a_main() {
 	DDRB |= (1<<DDB4); // enable output mode of Digital Pin 10 (PORTB Pin 4) for backlit control
 	PORTB |= (1<<DDB4); // enable back light
 	itoa(adc_test, jsBtn);
-	sprintf(line, "ADC:%2d", adc_test);
+	//sprintf(line, "ADC:%2d", adc_test);
 	lcd_puts(line);
-	lcd_xy(0,1);
-	sprintf(line, "Laser: %s", jsBtn);
-	lcd_puts(line);
+	//lcd_xy(0,1);
+	//sprintf(line, "Laser: %s", jsBtn);
+	//lcd_puts(line);
 	//Roomba_Init();
 	uart_init(UART_38400);
 	//Roomba_Drive(100, 0x8000);
