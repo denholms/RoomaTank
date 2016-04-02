@@ -40,6 +40,8 @@ void uart_init(UART_BPS bitrate)
 	//UBRR0H = 0;											// Baud Rate register - for any speed >= 9600 bps, the UBBR value fits in the low byte.
 	//UBRR1H = 0;
 	
+	//9600 baud will be 207
+	
 	UBRR0 = 51;
 	UBRR1 = 51;
 
