@@ -131,7 +131,7 @@ void Poll_Joystick(){
 	}
 	
 	
-	sprintf(buffer, "s%hu%hue", joystick_x, joystick_y);
+	sprintf(buffer, "s%2d%2de", joystick_x, joystick_y);
 	
 	//uart_send_string(buffer, 0);
 }
