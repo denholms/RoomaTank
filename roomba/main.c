@@ -26,11 +26,20 @@ roomba_sensor_data_t data;
 //unsigned int PongPID;
 //unsigned int IdlePID;
 unsigned int InitPID;
-unsigned int DrivePID;
-unsigned int IdlePID ;
+unsigned int PollPID;
+unsigned int IdlePID;
+unsigned int ReadPID;
+unsigned int RoombaPID;
+
 char sensordata[2];
 char wall;
 char virtualwall;
+char line2[16];
+char buffer[5];
+uint16_t joystick_y;
+uint16_t joystick_x;
+uint8_t joystickpress;
+char button = 'f';
 
 
 // An idle task that runs when there is nothing else to do
@@ -47,62 +56,29 @@ void ButtonInit(){
 	//enable internal pullup
 	BTPORT |= (1<<BT);
 }
+void Init_All(){
+	
+	
+	ButtonInit();
+	portL2_Mutex = Mutex_Init();
+	portL6_Mutex = Mutex_Init();
+	e1 = Event_Init();
+	e2 = Event_Init();
+	adc_init();
+	lcd_init();
+	//Roomba_Init();
+	Task_Terminate();
+	
+	
+}
+
 
 uint8_t ButtonRead(){
 	
-	
-	return (1<<BT)&BTPIN;
-	
-}
-// Ping task for testing
-void Init_Task() {
-	
-	DDRB |= (1<<PB1);	//pin 52
-	PORTB |= (1<<PB1);	//pin 52 on
-	/*int  x;
-	
-	for(;;){
-		Mutex_Lock(portL6_Mutex);
-		// toggle_LED(PORTL6);
-		Mutex_Unlock(portL6_Mutex);
-
-		Event_Signal(e2);
-		Event_Wait(e2);
-
-		Task_Suspend(PongPID);
-		Task_Resume(PongPID);
-
-		Task_Sleep(100);
-	}*/
-	
-	
+	return (1<<BT)&BTPIN;	
 }
 
-// Pong task for testing
-void Init_Drive() {
-	DDRB |= (1<<PB2);	//pin 51
-	PORTB &= ~(1<<PB1);	//pin 51 on
-	/*int  x;
-	
-	for(;;) {
-		Mutex_Lock(portL2_Mutex);
-		// toggle_LED(PORTL2);
-		Mutex_Unlock(portL2_Mutex);
-
-		Event_Signal(e1);
-		Event_Wait(e1);
-
-		Task_Suspend(PingPID);
-		Task_Resume(PingPID);
-
-		Task_Sleep(100);
-	}*/
-	
-	Roomba_Drive(100, 0x8000);
-}
-
-
-void Poll_Roomba_Data()
+/*void Poll_Roomba_Data()
 { 
 	//uint8_t playsong = 0;
 	//Roomba_PlaySong(playsong);
@@ -116,10 +92,11 @@ void Poll_Roomba_Data()
 	uart_putchar(2, ROOMBA_UART);
 	uart_putchar(8,ROOMBA_UART);
 	uart_putchar(13,ROOMBA_UART);
-	_delay_ms(200);
+	_delay_ms(20);
 	
-}
+}*/
 
+/*
 void Read_Roomba_Data(){
 	
 	
@@ -142,18 +119,13 @@ void Read_Roomba_Data(){
 	}
 	
 	
-}
+}*/
 
 void Poll_Joystick(){
-	char line2[16];
-	char buffer[5];
-	uint16_t joystick_y;
-	uint16_t joystick_x;
-	uint8_t joystickpress;
-	char button = 'f';
+
 	
 	//X high - left
-	ButtonInit();
+	
 	
 	//unsigned char send = 23;
 	
@@ -166,8 +138,12 @@ void Poll_Joystick(){
 		
 		if (joystickpress < 128)
 		{
-			button = 'o';
 			
+			button = 'o';	
+		}
+		else{
+			
+			button = 'f';
 			
 		}
 		if (joystick_x > 700){
@@ -197,25 +173,28 @@ void Poll_Joystick(){
 		}
 		lcd_xy(0,0);
 		//uart_putchar(send,1);
-		sprintf(line2, "ADC:%2d ", joystick_x);
+		//sprintf(line2, "ADC:%2d ", joystick_x);
 		//sprintf(line2, "Fucking Kill me");
 		//lcd_puts(line2);
+		sprintf(line2, "ADC:%2d ", joystickpress);
 		lcd_puts(line2);
 		lcd_xy(0,1);
 		
 		//sprintf(line2,"Jesus Fuck      ");
-		sprintf(line2, "ADC:%2d ", joystickpress);
-		lcd_puts(line2);
+		lcd_puts(buffer);
+		//lcd_puts(line2);
 		
 		//sprintf(buffer, "s%04d%04de\0", (int)joystick_x, (int)joystick_y);
 		
 		uart_send_string(buffer, BT_UART);
 		//uart_putchar('e', BT_UART);
-		sprintf(buffer, "s0e\0");
+		sprintf(buffer, "s0%ce\0", button);
 		
 		//Poll_Roomba_Data();
 		//uart_send_string(buffer, ROOMBA_UART);
 		_delay_ms(20);
+		
+		Task_Sleep(20);
 		
 	}
 	
@@ -225,44 +204,11 @@ void Poll_Joystick(){
 // Application level main function
 // Creates the required tasks and then terminates
 void a_main() {
-	char line[16];
-	portL2_Mutex = Mutex_Init();
-	portL6_Mutex = Mutex_Init();
-	unsigned char jsBtn;
-	
-	
-	e1 = Event_Init();
-	e2 = Event_Init();
-	adc_init();
-	uint16_t adc_test = adc_read(7);
-	//PongPID = Task_Create(Pong, 8, 1);
-	//PingPID = Task_Create(Ping, 8, 1);
-	//IdlePID = Task_Create(Idle, MINPRIORITY, 1);
-	lcd_init(); // initialized the LCD
-	lcd_xy(0,0);
-	DDRB |= (1<<DDB4); // enable output mode of Digital Pin 10 (PORTB Pin 4) for backlit control
-	PORTB |= (1<<DDB4); // enable back light
-	//itoa(adc_test, jsBtn);
-	//sprintf(line, "ADC:%2d", adc_test);
-	lcd_puts(line);
-	//lcd_xy(0,1);
-	//sprintf(line, "Laser: %s", jsBtn);
-	//lcd_puts(line);
-	Roomba_Init();
-	//uart_init(UART_38400);
-	//Roomba_Drive(100, 0x8000);
-	
-
-	
-			//Roomba_PlaySong(1);
-			//_delay_ms(200);
-	
 
 
 	
-	
-    InitPID = Task_Create(Poll_Joystick,0,1);
-	//DrivePID = Task_Create(Init_Drive, 8, 1);
-	//IdlePID = Task_Create(Idle, 8, 1);
+    InitPID = Task_Create(Init_All,0,1);
+	PollPID = Task_Create(Poll_Joystick, 1, 1);
+	IdlePID = Task_Create(Idle, 8, 1);
 	Task_Terminate();
 }
