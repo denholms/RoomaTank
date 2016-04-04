@@ -115,7 +115,11 @@ void Man_Drive(uint8_t dir){
 }
 
 void Auto_Drive() {
-	uart_putchar(CLEAN, ROOMBA_UART);
+	//uart_putchar(CLEAN, ROOMBA_UART);
+	PORTG |= (1<<PG2);
+	_delay_ms(100);
+	PORTG &= ~(1<<PG2);
+	_delay_ms(100);
 	_delay_ms(20);
 	return;
 }
@@ -126,6 +130,7 @@ void Sense(){
 	uint8_t dir = 0;
 	uint8_t laser_btn = 255;
 	uint8_t end = 255;
+	int count = 0;
 	
 	for (;;) {
 		photo_resist = 0;
@@ -164,10 +169,14 @@ void Sense(){
 					PORTD |= (1<<PD7);
 				}
 				// Direction input (joystick) results in manual drive
-				if (dir != 48){
-					Man_Drive(dir);
+				if (dir == 48){
+					count += 1;
+					if (count >= 50){
+						count = 0;
+						Auto_Drive();
+					}
 				} else {
-					Auto_Drive();
+					Man_Drive(dir);
 				}
 			}
 			uart_reset_receive(BT_UART);
@@ -180,17 +189,6 @@ void Sense(){
 }
 
 void Init_Task(){
-	Roomba_Init();
-	adc_init();
-	portL2_Mutex = Mutex_Init();
-	portL6_Mutex = Mutex_Init();
-	e1 = Event_Init();
-	e2 = Event_Init();
-	DDRD |= (1<<PD7);
-	DDRG |= (1<<PG2);
-	PORTD &= ~(1<<PD7);
-	PORTG &= ~(1<<PG2);
-	
 	int sum = 0;
 	for (int i = 0; i< 10; i++){
 		sum += adc_read(7);
@@ -199,6 +197,8 @@ void Init_Task(){
 	
 	Task_Terminate();
 }
+
+
 
 // Application level main function
 // Creates the required tasks and then terminates

@@ -1,9 +1,13 @@
 #include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 #include "LED_Test.h"
 #include "os.h"
 #include "queue.h"
+#include "roomba/roomba.h"
+#include "uart/uart.h"
+#include "adc/adc.h"
 
 
 //Comment out the following line to remove debugging code from compiled version.
@@ -957,6 +961,20 @@ ISR(TIMER3_COMPA_vect) {
 	tickOverflowCount += 1;
 }
 
+void Basic_Init() {
+	Roomba_Init();
+	adc_init();
+	//portL2_Mutex = Mutex_Init();
+	//portL6_Mutex = Mutex_Init();
+	//e1 = Event_Init();
+	//e2 = Event_Init();
+	DDRD |= (1<<PD7);
+	DDRG |= (1<<PG2);
+	PORTD &= ~(1<<PD7);
+	PORTG &= ~(1<<PG2);
+	Task_Terminate();
+}
+
 /**
   * This function boots the OS and creates the first task: a_main
   */
@@ -964,6 +982,7 @@ void main() {
 	setup();
 	
 	OS_Init();
+	Basic_Init();
 	Task_Create(a_main, 0, 1);
 	OS_Start();
 }
