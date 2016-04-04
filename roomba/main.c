@@ -101,10 +101,10 @@ void Poll_Joystick(){
 			
 		}
 		if (joystick_x > 700){
-			//radius > -1800 ? radius - 200 : -2000;
+			
 			
 			sprintf(buffer, "s4%ce\0", button);
-			//uart_putchar((uint8_t)'4', BT_UART);
+			
 			
 			} else if (joystick_x < 300) {
 			//X low - right
