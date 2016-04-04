@@ -3,7 +3,7 @@
  * @author Justin Tanner
  * @date   Sat Nov 22 21:32:03 2008
  *
- * @brief  UART Driver targetted for the AT90USB1287
+ * @brief  UART Driver targeted for the AtMEGA 2560
  *
  */
 #include "uart.h"
@@ -24,8 +24,6 @@ static volatile uint8_t uart_buffer_1_index;
  */
 void uart_init(UART_BPS bitrate)
 {
-	
-
 	/*Baud is hard set to 38400 by both*/
 	
     PRR0 &= ~(1 << PRUSART0);
@@ -37,14 +35,9 @@ void uart_init(UART_BPS bitrate)
 	UCSR1B = _BV(RXEN1) | _BV(TXEN1) | _BV(RXCIE1);
 	UCSR1C = _BV(UCSZ11) | _BV(UCSZ10);
 
-	//UBRR0H = 0;											// Baud Rate register - for any speed >= 9600 bps, the UBBR value fits in the low byte.
-	//UBRR1H = 0;
-	
-	//9600 baud will be 207
 
-	UBRR0 = 103;
-	UBRR1 = 207;
-	
+	UBRR0 = 103; // 19200 bps
+	UBRR1 = 207; // 9600 bps
 
 	// See the appropriate AVR hardware specification for a table of UBBR values at different
 	// clock speeds.*/
@@ -66,7 +59,6 @@ void uart_init(UART_BPS bitrate)
 	default:
 		UBRR0 = 103;
 		//UBRR1L = 103;
-
 	}
 
     uart_buffer_index = 0;

@@ -35,7 +35,6 @@ LINKER_SCRIPT_DEP:=
 SUBDIRS :=  \
 ../adc \
 ../lcd \
-../radio \
 ../roomba \
 ../uart
 
@@ -43,14 +42,10 @@ SUBDIRS :=  \
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS +=  \
 ../adc/adc.c \
-../control.c \
 ../lcd/lcd_drv.c \
-../LED_Test.c \
 ../main.c \
 ../os.c \
 ../queue.c \
-../radio/radio.c \
-../radio/spi.c \
 ../roomba/roomba.c \
 ../uart/uart.c
 
@@ -64,57 +59,41 @@ ASM_SRCS +=
 
 OBJS +=  \
 adc/adc.o \
-control.o \
 cswitch.o \
 lcd/lcd_drv.o \
-LED_Test.o \
 main.o \
 os.o \
 queue.o \
-radio/radio.o \
-radio/spi.o \
 roomba/roomba.o \
 uart/uart.o
 
 OBJS_AS_ARGS +=  \
 adc/adc.o \
-control.o \
 cswitch.o \
 lcd/lcd_drv.o \
-LED_Test.o \
 main.o \
 os.o \
 queue.o \
-radio/radio.o \
-radio/spi.o \
 roomba/roomba.o \
 uart/uart.o
 
 C_DEPS +=  \
 adc/adc.d \
-control.d \
 cswitch.d \
 lcd/lcd_drv.d \
-LED_Test.d \
 main.d \
 os.d \
 queue.d \
-radio/radio.d \
-radio/spi.d \
 roomba/roomba.d \
 uart/uart.d
 
 C_DEPS_AS_ARGS +=  \
 adc/adc.d \
-control.d \
 cswitch.d \
 lcd/lcd_drv.d \
-LED_Test.d \
 main.d \
 os.d \
 queue.d \
-radio/radio.d \
-radio/spi.d \
 roomba/roomba.d \
 uart/uart.d
 
@@ -147,22 +126,7 @@ LINKER_SCRIPT_DEP+=
 
 
 
-
-
-
-
-
-
-
-
 adc/%.o: ../adc/%.c
-	@echo Building file: $<
-	@echo Invoking: AVR/GNU C Compiler : 4.9.2
-	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.98\include"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=atmega2560 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.98\gcc\dev\atmega2560" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
-	@echo Finished building: $<
-	
-
-./%.o: .././%.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 4.9.2
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.98\include"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=atmega2560 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.98\gcc\dev\atmega2560" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
@@ -176,7 +140,7 @@ lcd/%.o: ../lcd/%.c
 	@echo Finished building: $<
 	
 
-radio/%.o: ../radio/%.c
+./%.o: .././%.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 4.9.2
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.98\include"  -O1 -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -mrelax -g2 -Wall -mmcu=atmega2560 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.0.98\gcc\dev\atmega2560" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 

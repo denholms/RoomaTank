@@ -1,7 +1,7 @@
 #include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "LED_Test.h"
+
 #include "os.h"
 #include "queue.h"
 
@@ -391,13 +391,13 @@ static void Kernel_Unlock_Mutex() {
 			// Turn on pin for newly running task
 			// For testing
 			if (Cp->p <= 1) {
-				enable_LED(PORTL2);
+				//enable_LED(PORTL2);
 			}
 			else if (Cp->p == 2) {
-				enable_LED(PORTL5);
+				//enable_LED(PORTL5);
 			}
 			else if (Cp->p == 3) {
-				enable_LED(PORTL6);
+				//enable_LED(PORTL6);
 			}
 		}
 		else {
@@ -531,13 +531,13 @@ static void Dispatch() {
 
 	// For testing
 	if (Cp->p <= 1) {
-		enable_LED(PORTL2);
+		//enable_LED(PORTL2);
 	}
 	else if (Cp->p == 2) {
-		enable_LED(PORTL5);
+		//enable_LED(PORTL5);
 	}
 	else if (Cp->p == 3) {
-		enable_LED(PORTL6);
+		//enable_LED(PORTL6);
 	}
 }
 
@@ -565,9 +565,9 @@ static void Next_Kernel_Request() {
 		Exit_Kernel();    /* or CSwitch() */
 
 		// For testing
-		disable_LED(PORTL2);
-		disable_LED(PORTL5);
-		disable_LED(PORTL6);
+		//disable_LED(PORTL2);
+		//disable_LED(PORTL5);
+		//disable_LED(PORTL6);
 
 		/* if this task makes a system call, it will return to here! */
 
@@ -635,13 +635,13 @@ static void Next_Kernel_Request() {
         	
         	// For testing
 			if (Cp->p <= 1) {
-				enable_LED(PORTL2);
+				//enable_LED(PORTL2);
 			}
 			else if (Cp->p == 2) {
-				enable_LED(PORTL5);
+				//enable_LED(PORTL5);
 			}
 			else if (Cp->p == 3) {
-				enable_LED(PORTL6);
+				//enable_LED(PORTL6);
 			}
 
         	break;
@@ -878,19 +878,19 @@ int Task_GetArg(PID p) {
 void setup() {
 	/** For testing */
 	/** pin 47 */
-	init_LED_PORTL_pin2();
+	//init_LED_PORTL_pin2();
 
 	/** pin 43 */
-	init_LED_PORTL_pin6();
+	//init_LED_PORTL_pin6();
 
 	/** pin 44 */
-	init_LED_PORTL_pin5();
+	//init_LED_PORTL_pin5();
 
 	/** pin 49 */
-	init_LED_PORTL_pin0();
+	//init_LED_PORTL_pin0();
 
 	/** pin 48 */
-	init_LED_PORTL_pin1();
+	//init_LED_PORTL_pin1();
 
 	/** initialize Timer1 16 bit timer */
 	Disable_Interrupt();

@@ -3,7 +3,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
-#include "LED_Test.h"
+
 #include "os.h"
 
 #include "roomba/roomba.h"
@@ -21,10 +21,6 @@ unsigned int portL6_Mutex;
 
 unsigned int e1;
 unsigned int e2;
-roomba_sensor_data_t data;
-//unsigned int PingPID;
-//unsigned int PongPID;
-//unsigned int IdlePID;
 unsigned int InitPID;
 unsigned int PollPID;
 unsigned int IdlePID;
@@ -64,9 +60,9 @@ void Init_All(){
 	portL6_Mutex = Mutex_Init();
 	e1 = Event_Init();
 	e2 = Event_Init();
+	uart_init(UART_19200);
 	adc_init();
 	lcd_init();
-	//Roomba_Init();
 	Task_Terminate();
 	
 	
@@ -78,59 +74,17 @@ uint8_t ButtonRead(){
 	return (1<<BT)&BTPIN;	
 }
 
-/*void Poll_Roomba_Data()
-{ 
-	//uint8_t playsong = 0;
-	//Roomba_PlaySong(playsong);
-	_delay_ms(200);
-	lcd_xy(0,0);
-	//Roomba_Drive(100, 0x8000);
-	
-	lcd_puts("Polling Sensor  ");
-	_delay_ms(20);
-	uart_putchar(149,ROOMBA_UART);
-	uart_putchar(2, ROOMBA_UART);
-	uart_putchar(8,ROOMBA_UART);
-	uart_putchar(13,ROOMBA_UART);
-	_delay_ms(20);
-	
-}*/
-
-/*
-void Read_Roomba_Data(){
-	
-	
-	int index = 0;
-	
-	if (uart_bytes_received(BT_UART) >= 2)
-	{
-		while (index < 2)
-		{
-			sensordata[index] =  uart_get_byte(index, BT_UART);
-			index ++;
-		}
-		uart_reset_receive(BT_UART);
-		
-		
-		wall = sensordata[0];
-		virtualwall = sensordata[1];
-		
-		
-	}
-	
-	
-}*/
-
 void Poll_Joystick(){
 
 	
 	//X high - left
 	
-	
+	uint16_t light = 0;
 	//unsigned char send = 23;
 	
 	for (;;)
 	{
+		light = adc_read(3);
 		joystick_x = adc_read(7);
 		joystick_y = adc_read(5);
 		//uart_putchar('s', BT_UART);
@@ -172,29 +126,21 @@ void Poll_Joystick(){
 			//uart_putchar('2', BT_UART);
 		}
 		lcd_xy(0,0);
-		//uart_putchar(send,1);
-		//sprintf(line2, "ADC:%2d ", joystick_x);
-		//sprintf(line2, "Fucking Kill me");
-		//lcd_puts(line2);
-		sprintf(line2, "ADC:%2d ", joystickpress);
+	
+		sprintf(line2, "ADC:%2d ", light);
 		lcd_puts(line2);
 		lcd_xy(0,1);
 		
-		//sprintf(line2,"Jesus Fuck      ");
 		lcd_puts(buffer);
-		//lcd_puts(line2);
-		
-		//sprintf(buffer, "s%04d%04de\0", (int)joystick_x, (int)joystick_y);
 		
 		uart_send_string(buffer, BT_UART);
-		//uart_putchar('e', BT_UART);
+		
 		sprintf(buffer, "s0%ce\0", button);
 		
-		//Poll_Roomba_Data();
-		//uart_send_string(buffer, ROOMBA_UART);
+		
+		
 		_delay_ms(20);
 		
-		Task_Sleep(20);
 		
 	}
 	
