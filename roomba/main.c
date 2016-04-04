@@ -18,12 +18,15 @@ unsigned int e2;
 
 //unsigned int PingPID;
 //unsigned int PongPID;
-//unsigned int IdlePID;
+unsigned int IdlePID;
 unsigned int InitPID;
-unsigned int DrivePID;
+unsigned int Man_DrivePID;
+unsigned int Auto_DrivePID;
+unsigned int SensePID;
 
 int16_t velocity = 0;
 int16_t radius = 0x8000;
+uint16_t light_threshold;
 
 // An idle task that runs when there is nothing else to do
 // Could be changed later to put CPU into low power state
@@ -33,11 +36,12 @@ void Idle() {
 }
 
 // Ping task for testing
+/*
 void Init_Task() {
 	
 	DDRB |= (1<<PB1);	//pin 52
 	PORTB |= (1<<PB1);	//pin 52 on
-	/*int  x;
+	int  x;
 	
 	for(;;){
 		Mutex_Lock(portL6_Mutex);
@@ -51,10 +55,10 @@ void Init_Task() {
 		Task_Resume(PongPID);
 
 		Task_Sleep(100);
-	}*/
+	}
 	Roomba_Init();
 	Task_Terminate();
-}
+}*/
 
 // Pong task for testing
 void Init_Drive() {
@@ -80,104 +84,138 @@ void Init_Drive() {
 	Task_Terminate();
 }
 
-void move(char jsX[], char jsY[]){
-	//X high - left
-	if (jsX[0] || jsX[1] > 7){
-		radius = radius > -1800 ? radius - 200 : -2000;
-	} else if (jsX[1] < 3) {
-	//X low - right
-		radius = radius < 1800 ? radius + 200 : 2000;
+void Man_Drive(uint8_t dir){
+	switch ((int)dir){
+		case 48:
+			//No movement
+			radius = 0x8000;
+			break;
+		case 49:
+			//Left
+			radius = (velocity == 0) ? -1 : -200;
+			break;
+		case 50:
+			//Right
+			radius = (velocity == 0) ? 1 : 200;
+			break;
+		case 51:
+			//Down
+			velocity = (velocity > 0) ? 0 : -200;
+			break;
+		case 52:
+			//Up
+			velocity = (velocity < 0) ? 0 : 200;
+			break;
+		default:
+			break;
+			
 	}
-	//Y high - down
-	if (jsY[0] || jsY[1] > 7) {
-		velocity = velocity > 0 ? 0 : -100;
-	} else if (jsY[1] < 3) {
-	//Y low - up
-		velocity = velocity < 0 ? 0 : 100;
-	}
-	
 	Roomba_Drive(velocity, radius);
+	return;
+}
+
+void Auto_Drive() {
+	uart_putchar(CLEAN, ROOMBA_UART);
+	_delay_ms(20);
+	return;
+}
+
+void Sense(){
+	uint16_t photo_resist = 0;
+	uint8_t start = 255;
+	uint8_t dir = 0;
+	uint8_t laser_btn = 255;
+	uint8_t end = 255;
+	
+	for (;;) {
+		photo_resist = 0;
+		
+		// Read photo-resistor
+		photo_resist = adc_read(7);
+
+		// Hit by laser
+		if (photo_resist > light_threshold){
+
+			//Light up LED
+			PORTG |= (1<<PG2);
+			Idle();
+		}
+		
+		// If enough data received
+		if (uart_bytes_received(BT_UART) >= 5) {
+			//uart_reset_receive(BT_UART);
+			
+			start = uart_get_byte(1, BT_UART);
+			end = uart_get_byte(4, BT_UART);
+			uart_putchar(uart_bytes_received(BT_UART), BT_UART);
+			uart_putchar(start, BT_UART);
+			uart_putchar(end, BT_UART);
+			// Validate framing
+			if (start == (uint8_t)'s' && end == (uint8_t)'e'){
+				dir = uart_get_byte(2, BT_UART);
+				laser_btn = uart_get_byte(3, BT_UART);
+				uart_putchar(dir, BT_UART);
+				uart_putchar(laser_btn, BT_UART);
+				
+				// On == 'o'
+				if (laser_btn == 111){
+					uart_putchar('o', BT_UART);
+					//FIRE LASER
+					PORTD |= (1<<PD7);
+				}
+				// Direction input (joystick) results in manual drive
+				if (dir != 48){
+					Man_Drive(dir);
+				} else {
+					Auto_Drive();
+				}
+			}
+			uart_reset_receive(BT_UART);
+		}
+		
+		//Turn laser off
+		PORTD &= ~(1<<PD7);
+	}
+	Task_Terminate();
+}
+
+void Init_Task(){
+	Roomba_Init();
+	adc_init();
+	portL2_Mutex = Mutex_Init();
+	portL6_Mutex = Mutex_Init();
+	e1 = Event_Init();
+	e2 = Event_Init();
+	DDRD |= (1<<PD7);
+	DDRG |= (1<<PG2);
+	PORTD &= ~(1<<PD7);
+	PORTG &= ~(1<<PG2);
+	
+	int sum = 0;
+	for (int i = 0; i< 10; i++){
+		sum += adc_read(7);
+	}
+	light_threshold = (int)((sum/10)*1.4);
+	
+	Task_Terminate();
 }
 
 // Application level main function
 // Creates the required tasks and then terminates
 void a_main() {
-	Roomba_Init();
-	char line[16];
+	//Init_Task();
+	InitPID		= Task_Create(Init_Task,0,1);
+	SensePID	= Task_Create(Sense, 1, 1);
+	IdlePID		= Task_Create(Idle, 8, 1);
+	//Man_DrivePID = Task_Create(Man_Drive, 1, 1);
+	//Auto_DrivePID = Task_Create(Auto_Drive, 3, 1);
+	
+	/*char line[16];
 	uint16_t adc_test;
-	portL2_Mutex = Mutex_Init();
-	portL6_Mutex = Mutex_Init();
-	e1 = Event_Init();
-	e2 = Event_Init();
-	adc_init();
-	
-	char start = 'z';
-	char jsX[4];
-	char jsY[4];
-	char end = 'z';
-	
-	uint8_t song = 50;
-	Roomba_PlaySong(song);
-	
-	for (;;){
-		Roomba_Drive(-500, 0x8000);
-		while (uart_bytes_received(BT_UART) < 30){
-			Roomba_Drive(100,0x8000);
-			_delay_ms(1000);
-			Roomba_Drive(0, 0x8000);
-			_delay_ms(1000);
-			Roomba_Drive(-100, 0x8000);
-			_delay_ms(1000);
-			Roomba_Drive(0, 0x8000);
-			_delay_ms(1000);
-		}
-		
-		int i = 0;
-		while (start != 115) {
-			start = uart_get_byte(i, BT_UART);
-			i++;
-			if (i == 23){
-				uart_reset_receive(BT_UART);
-				i = 0;
-			}
-		}
-		jsX[0] = uart_get_byte(i++, BT_UART);
-		jsX[1] = uart_get_byte(i++, BT_UART);
-		jsX[2] = uart_get_byte(i++, BT_UART);
-		jsX[3] = uart_get_byte(i++, BT_UART);
-		jsY[0] = uart_get_byte(i++, BT_UART);
-		jsY[1] = uart_get_byte(i++, BT_UART);
-		jsY[2] = uart_get_byte(i++, BT_UART);
-		jsY[3] = uart_get_byte(i++, BT_UART);
-		end = uart_get_byte(i++, BT_UART);
-		uart_putchar(start, BT_UART);
-		uart_putchar(end, BT_UART);
-		if (start != 115 || end != 101) {
-			uart_putchar(start, BT_UART);
-			uart_putchar(end, BT_UART);
-			Roomba_Drive(500, 0x8000);
-			_delay_ms(1000);
-			continue;
-		}
-		move(jsX, jsY);
-		uart_reset_receive(BT_UART);
-		Roomba_Drive(200, 2000);
-		_delay_ms(1000);
-		
-	}
-	//PongPID = Task_Create(Pong, 8, 1);
-	//PingPID = Task_Create(Ping, 8, 1);
-	//IdlePID = Task_Create(Idle, MINPRIORITY, 1);
-	
-	lcd_init();												// initialized the LCD
-	DDRB |= (1<<DDB4);										// enable output mode of Digital Pin 10 (PORTB Pin 4) for backlit control
-	PORTB |= (1<<DDB4);										// enable back light
-	
 	adc_test = adc_read(7);
-	sprintf(line, "ADC: %4d", adc_test);
-	lcd_puts(line);
+	sprintf(line, "%04d\0", adc_test);
+	uart_send_string(line, BT_UART);
+	_delay_ms(50);*/
 	
-	InitPID = Task_Create(Init_Task,8,1);
-	DrivePID = Task_Create(Init_Drive, 8, 1);
 	Task_Terminate();
 }

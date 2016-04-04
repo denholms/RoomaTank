@@ -28,5 +28,6 @@ void uart_putchar(uint8_t byte, int uart);
 uint8_t uart_get_byte(int index, int uart);
 uint8_t uart_bytes_received(int uart);
 void uart_reset_receive(int uart);
+void uart_send_string(char *string, int uart);
 
 #endif

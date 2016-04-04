@@ -938,13 +938,16 @@ ISR(TIMER1_COMPA_vect) {
 			volatile PD *p = dequeue(&SleepQueue, &SQCount);
 			p->state = READY;
 			enqueueRQ(&p, &ReadyQueue, &RQCount);
+			if (p->inheritedPy < Cp->inheritedPy) {
+				Task_Next();
+			}
 		}
 		else {
 			break;
 		}
 	}
 
-	Task_Next();
+	//Task_Next();
 }
 
 /**

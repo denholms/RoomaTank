@@ -36,8 +36,9 @@ void uart_init(UART_BPS bitrate)
 	UCSR1C = _BV(UCSZ11) | _BV(UCSZ10);
 
 	//UBRR0H = 0;											// Baud Rate register - for any speed >= 9600 bps, the UBBR value fits in the low byte.
-	UBRR1H = 0;
-	UBRR1L = 207;	//103
+	//UBRR1H = 0;
+	//UBRR1L = 207;	//103
+	UBRR1 = 207;
 	//UBRR0L = 103;
 	UBRR0 = 103;
 /*
@@ -164,7 +165,7 @@ uint8_t uart_get_byte(int index, int uart)
  */
 uint8_t uart_bytes_received(int uart)
 {
-	if (uart) {
+	if (uart == 1) {
     	return uart_buffer_1_index;
     } else {
     	return uart_buffer_index;
@@ -178,13 +179,22 @@ uint8_t uart_bytes_received(int uart)
  */
 void uart_reset_receive(int uart)
 {
-	if (uart) {
+	if (uart == 1) {
 		uart_buffer_1_index = 0;
 	} else {
 		uart_buffer_index = 0;
 	}
 }
-
+void uart_send_string(char *string, int uart){
+	
+	while (*string != '\0')
+	{
+		uart_putchar(*string, uart);
+		string++;
+	}
+	
+	
+}
 /**
  * UART receive byte ISR
  */
