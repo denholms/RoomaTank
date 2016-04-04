@@ -156,6 +156,8 @@ uint8_t uart_get_byte(int index, int uart)
   	return 0;
 }
 
+
+
 /**
  * Get the number of bytes received on UART
  *

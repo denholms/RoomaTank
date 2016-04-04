@@ -26,6 +26,12 @@
 #define PLAY	141		// play a song that was loaded using SONG
 #define SENSORS	142		// retrieve one of the sensor packets
 #define DOCK	143		// force the Roomba to seek its dock.
+#define SENSOR 149
+#define AMOUNT 3
+#define BUMP 7
+#define VIRTUALWALL 13
+#define IRWALLS 45
+
 
 /*****											Arguments										*****/
 

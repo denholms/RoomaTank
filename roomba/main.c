@@ -27,6 +27,10 @@ unsigned int SensePID;
 int16_t velocity = 0;
 int16_t radius = 0x8000;
 uint16_t light_threshold;
+uint8_t bumper;
+uint8_t virtualwall;
+uint8_t IRwalls;
+
 
 // An idle task that runs when there is nothing else to do
 // Could be changed later to put CPU into low power state
@@ -100,26 +104,89 @@ void Man_Drive(uint8_t dir){
 			break;
 		case 51:
 			//Down
-			velocity = (velocity > 0) ? 0 : -200;
+			velocity = (velocity > 100) ? 0 : -200;
 			break;
 		case 52:
 			//Up
-			velocity = (velocity < 0) ? 0 : 200;
+			velocity = (velocity <= -200) ? 0 : 200;
 			break;
 		default:
 			break;
 			
 	}
 	Roomba_Drive(velocity, radius);
+	_delay_ms(200);
 	return;
+}
+
+void Get_Roomba_Data(){
+	
+	//char command[50] = {149, 3, 7, 13, 45, '\0'};
+	//uart_send_string(command, ROOMBA_UART);
+	for (;;){
+		uart_putchar(SENSOR, ROOMBA_UART);
+		uart_putchar(AMOUNT, ROOMBA_UART);
+		uart_putchar(BUMP, ROOMBA_UART);
+		uart_putchar(VIRTUALWALL, ROOMBA_UART);
+		uart_putchar(IRWALLS, ROOMBA_UART);
+		_delay_ms(20);
+	
+		while(!(UCSR0A & (1<<RXC0))){
+			uart_putchar('#', BT_UART);	
+			uart_putchar(SENSOR, ROOMBA_UART);
+			uart_putchar(AMOUNT, ROOMBA_UART);
+			uart_putchar(BUMP, ROOMBA_UART);
+			uart_putchar(VIRTUALWALL, ROOMBA_UART);
+			uart_putchar(IRWALLS, ROOMBA_UART);
+			_delay_ms(20);
+		}
+		bumper = UDR0;
+		while(!(UCSR0A & (1<<RXC0)));
+		virtualwall = UDR0;
+		while(!(UCSR0A & (1<<RXC0)));
+		IRwalls = UDR0;
+		uart_putchar('%', BT_UART);
+		uart_putchar(bumper, BT_UART);
+		uart_putchar(virtualwall, BT_UART);
+		uart_putchar(IRwalls, BT_UART);
+		uart_putchar('$', BT_UART);
+		uart_reset_receive(ROOMBA_UART);
+		
+	}
+	
+	bumper = uart_get_byte(0,ROOMBA_UART);
+	virtualwall = uart_get_byte(1, ROOMBA_UART);
+	IRwalls = uart_get_byte(2,ROOMBA_UART);
+	uart_reset_receive(ROOMBA_UART);
 }
 
 void Auto_Drive() {
 	//uart_putchar(CLEAN, ROOMBA_UART);
+	
+	Get_Roomba_Data();
+	
+	if (bumper &= 0b00000001) // bump right
+	{
+		Roomba_Drive(-100, 0x8000);
+		_delay_ms(50);
+		Roomba_Drive(0, -1);
+		_delay_ms(50);
+	} else if (bumper &= 0b00000010) // bump left
+	{
+		Roomba_Drive(-100, 0x8000);
+		_delay_ms(50);
+		Roomba_Drive(0, 1);
+		_delay_ms(50);
+		
+	} else if (virtualwall){
+		
+		Roomba_Drive(0, -1);
+		_delay_ms(100);
+		Roomba_Drive(100, 0x8000);
+	}
 	PORTG |= (1<<PG2);
-	_delay_ms(100);
+	_delay_ms(20);
 	PORTG &= ~(1<<PG2);
-	_delay_ms(100);
 	_delay_ms(20);
 	return;
 }
